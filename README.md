@@ -1,16 +1,33 @@
-# Personal Expense Analysis
+# 💸 Financial Data Exploration
 
-## Description
+An interactive dashboard to explore and visualize your personal spending habits. Upload a CSV of your expenses and get immediate insights through charts, filters, and summaries.
 
-This project analyzes personal finance data and provides insights into spending habits. The goal is to visualize your spending patterns and track changes over time.
+🔗 **Live App**: [personal-dashboard.streamlit.app](https://personal-dashboard.streamlit.app/)
 
-### Key Features:
+## 📊 Features
 
-- **Spending by Category**: Visualizes the distribution of spending across different categories (e.g., Food, Transport, Entertainment).
-- **Total Spending Over Time**: Shows trends in total spending on a monthly basis.
-- **Data Visualizations**: Generates a pie chart and a line graph for easy analysis.
+- Upload your own CSV expense file
+- View spending by category in a pie chart
+- Visualize your total spending over time
+- Filter by date range
+- Easily compare where your money goes each month
 
-## Getting Started
+## 📂 Sample CSV Format
+
+Make sure your file looks like this:
+
+| Date       | Category     | Amount |
+|------------|--------------|--------|
+| 2024-01-03 | Groceries     | 45.20  |
+| 2024-01-05 | Entertainment | 12.99  |
+| 2024-01-10 | Rent          | 800.00 |
+
+- Date format: `YYYY-MM-DD`
+- Categories and amounts are flexible!
+
+You can also use the included `sample_expenses.csv` to try it out.
+
+## 🚀 How to Run Locally
 
 ### 1. Clone the Repository
 
