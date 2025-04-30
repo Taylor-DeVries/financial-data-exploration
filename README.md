@@ -2,6 +2,8 @@
 
 An interactive dashboard to explore and visualize your personal spending habits. Upload a CSV of your expenses and get immediate insights through charts, filters, and summaries.
 
+# 💻 Check it out
+
 🔗 **Live App**: [personal-dashboard.streamlit.app](https://personal-dashboard.streamlit.app/)
 
 ## 📊 Features
