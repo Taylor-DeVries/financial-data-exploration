@@ -234,6 +234,37 @@ def app():
             ],
             'Amount': [800, 120, 60, 45, 100, 800, 110, 50, 80, 90, 800, 130, 60, 70, 40, 800, 125, 55, 90, 100]
         })
+    # Show instructions if no data is loaded
+    if df is None:
+        st.markdown("""
+        ## How to Use This Dashboard
+        
+        **To get started, upload a CSV file or click 'Use Default/Dummy Data' in the sidebar.**
+        
+        ### CSV Format
+        Your CSV should have at least these columns:
+        - `Date` (YYYY-MM-DD or similar)
+        - `Category` (e.g., Rent, Groceries, Entertainment)
+        - `Amount` (numeric, e.g., 120.50)
+        
+        **Example:**
+        ```csv
+        Date,Category,Amount
+        2024-01-01,Rent,800
+        2024-01-08,Groceries,120
+        2024-01-15,Entertainment,80
+        ...
+        ```
+        
+        | Date       | Category      | Amount |
+        |------------|--------------|--------|
+        | 2024-01-01 | Rent         | 800    |
+        | 2024-01-08 | Groceries    | 120    |
+        | 2024-01-15 | Entertainment| 80     |
+        
+        *You can use the dummy data to explore the dashboard if you don't have a CSV ready!*
+        """)
+        st.stop()
     if df is not None:
         st.sidebar.header('Filters')
         min_date = df['Date'].min().date()
