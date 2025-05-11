@@ -218,52 +218,66 @@ def app():
         step=1000
     )
     uploaded_file = st.sidebar.file_uploader("Upload your expense data (CSV)", type=["csv"])
+    use_dummy = st.sidebar.button("Use Default/Dummy Data")
+    df = None
     if uploaded_file is not None:
         df = load_data(uploaded_file)
-        if df is not None:
-            st.sidebar.header('Filters')
-            min_date = df['Date'].min().date()
-            max_date = df['Date'].max().date()
-            date_range = st.sidebar.date_input(
-                'Select Date Range',
-                value=(min_date, max_date),
-                min_value=min_date,
-                max_value=max_date
-            )
-            all_categories = ['All'] + list(df['Category'].unique())
-            selected_category = st.sidebar.selectbox('Select Category', all_categories)
-            if len(date_range) == 2:
-                filtered_df = filter_data_by_date(df, date_range[0], date_range[1])
-                if selected_category != 'All':
-                    filtered_df = filtered_df[filtered_df['Category'] == selected_category]
-            else:
-                filtered_df = df
-            kpis = calculate_kpis(filtered_df)
-            # --- KPI Cards (remove Available Balance) ---
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown(f'<div class="card"><div class="fa-icon"><i class="fa-solid fa-piggy-bank"></i></div><div class="kpi-title">Total Net Worth</div><div class="kpi-value">${user_net_worth:,.2f}</div></div>', unsafe_allow_html=True)
-            with col2:
-                st.markdown(f'<div class="card"><div class="fa-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div><div class="kpi-title">Total Spending</div><div class="kpi-value">${kpis["Total Spending"]:,.2f}</div></div>', unsafe_allow_html=True)
-            with col3:
-                st.markdown(f'<div class="card"><div class="fa-icon"><i class="fa-solid fa-receipt"></i></div><div class="kpi-title">Transactions</div><div class="kpi-value">{kpis["Number of Transactions"]:,}</div></div>', unsafe_allow_html=True)
-            # --- Progress Bar Example ---
-            st.markdown('<div class="section-title">Financial Goal Progress</div>', unsafe_allow_html=True)
-            percent = int((user_net_worth / user_goal) * 100) if user_goal > 0 else 0
-            st.markdown(f'<div style="color:#a78bfa;font-size:1.2rem;">{percent}% of Goal</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="progress-bar"><div class="progress" style="width:{percent}%;"></div></div>', unsafe_allow_html=True)
-            st.markdown(f'<div style="color:#fff;">${user_net_worth:,.2f} / {user_goal:,}</div>', unsafe_allow_html=True)
-            # --- Main Analytics ---
-            st.markdown('<div class="section-title">Spending by Category</div>', unsafe_allow_html=True)
-            plot_spending_by_category(filtered_df)
-            st.markdown('<div class="section-title">Total Spending Over Time</div>', unsafe_allow_html=True)
-            plot_total_spending_over_time(filtered_df)
-            st.markdown('<div class="section-title">Category-wise Trends</div>', unsafe_allow_html=True)
-            plot_category_trends(filtered_df)
-            st.markdown('<div class="section-title">Spending Forecast</div>', unsafe_allow_html=True)
-            forecast_spending(filtered_df)
-            st.markdown('<div class="section-title">Raw Data</div>', unsafe_allow_html=True)
-            st.dataframe(filtered_df.sort_values('Date', ascending=False), use_container_width=True)
+    elif use_dummy:
+        # Create a sample DataFrame with Rent ~50% of total, and add Entertainment and Misc
+        df = pd.DataFrame({
+            'Date': pd.date_range(start='2024-01-01', periods=20, freq='7D'),
+            'Category': [
+                'Rent', 'Groceries', 'Utilities', 'Dining', 'Transport',
+                'Rent', 'Groceries', 'Dining', 'Entertainment', 'Transport',
+                'Rent', 'Groceries', 'Dining', 'Utilities', 'Misc',
+                'Rent', 'Groceries', 'Dining', 'Entertainment', 'Misc',
+            ],
+            'Amount': [800, 120, 60, 45, 100, 800, 110, 50, 80, 90, 800, 130, 60, 70, 40, 800, 125, 55, 90, 100]
+        })
+    if df is not None:
+        st.sidebar.header('Filters')
+        min_date = df['Date'].min().date()
+        max_date = df['Date'].max().date()
+        date_range = st.sidebar.date_input(
+            'Select Date Range',
+            value=(min_date, max_date),
+            min_value=min_date,
+            max_value=max_date
+        )
+        all_categories = ['All'] + list(df['Category'].unique())
+        selected_category = st.sidebar.selectbox('Select Category', all_categories)
+        if len(date_range) == 2:
+            filtered_df = filter_data_by_date(df, date_range[0], date_range[1])
+            if selected_category != 'All':
+                filtered_df = filtered_df[filtered_df['Category'] == selected_category]
+        else:
+            filtered_df = df
+        kpis = calculate_kpis(filtered_df)
+        # --- KPI Cards (remove Available Balance) ---
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown(f'<div class="card"><div class="fa-icon"><i class="fa-solid fa-piggy-bank"></i></div><div class="kpi-title">Total Net Worth</div><div class="kpi-value">${user_net_worth:,.2f}</div></div>', unsafe_allow_html=True)
+        with col2:
+            st.markdown(f'<div class="card"><div class="fa-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div><div class="kpi-title">Total Spending</div><div class="kpi-value">${kpis["Total Spending"]:,.2f}</div></div>', unsafe_allow_html=True)
+        with col3:
+            st.markdown(f'<div class="card"><div class="fa-icon"><i class="fa-solid fa-receipt"></i></div><div class="kpi-title">Transactions</div><div class="kpi-value">{kpis["Number of Transactions"]:,}</div></div>', unsafe_allow_html=True)
+        # --- Progress Bar Example ---
+        st.markdown('<div class="section-title">Financial Goal Progress</div>', unsafe_allow_html=True)
+        percent = int((user_net_worth / user_goal) * 100) if user_goal > 0 else 0
+        st.markdown(f'<div style="color:#a78bfa;font-size:1.2rem;">{percent}% of Goal</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="progress-bar"><div class="progress" style="width:{percent}%;"></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:#fff;">${user_net_worth:,.2f} / {user_goal:,}</div>', unsafe_allow_html=True)
+        # --- Main Analytics ---
+        st.markdown('<div class="section-title">Spending by Category</div>', unsafe_allow_html=True)
+        plot_spending_by_category(filtered_df)
+        st.markdown('<div class="section-title">Total Spending Over Time</div>', unsafe_allow_html=True)
+        plot_total_spending_over_time(filtered_df)
+        st.markdown('<div class="section-title">Category-wise Trends</div>', unsafe_allow_html=True)
+        plot_category_trends(filtered_df)
+        st.markdown('<div class="section-title">Spending Forecast</div>', unsafe_allow_html=True)
+        forecast_spending(filtered_df)
+        st.markdown('<div class="section-title">Raw Data</div>', unsafe_allow_html=True)
+        st.dataframe(filtered_df.sort_values('Date', ascending=False), use_container_width=True)
 
 if __name__ == "__main__":
     app()
