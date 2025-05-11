@@ -211,7 +211,7 @@ def app():
         st.markdown("""
         ## How to Use This Dashboard
         
-        **To get started, upload a CSV file or click 'Use Default/Dummy Data' in the sidebar.**
+        **To get started, upload a CSV file or click 'Use Default Data' in the sidebar.**
         
         ### CSV Format
         Your CSV should have at least these columns:
@@ -234,7 +234,7 @@ def app():
         | 2024-01-08 | Groceries    | 120    |
         | 2024-01-15 | Entertainment| 80     |
         
-        *You can use the dummy data to explore the dashboard if you don't have a CSV ready!*
+        *You can use the default data to explore the dashboard if you don't have a CSV ready!*
         """)
         st.stop()
     if df is not None:
