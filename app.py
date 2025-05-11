@@ -120,18 +120,6 @@ def plot_total_spending_over_time(df):
     fig.update_layout(paper_bgcolor='#23243a', plot_bgcolor='#23243a', font_color='#fff')
     st.plotly_chart(fig, use_container_width=True)
 
-def plot_income_vs_expense(df):
-    if 'Type' not in df.columns:
-        st.info("No 'Type' column found. Skipping Income vs Expense chart.")
-        return
-    df['Month'] = df['Date'].dt.to_period('M')
-    monthly = df.groupby(['Month', 'Type'])['Amount'].sum().reset_index()
-    monthly['Month'] = monthly['Month'].astype(str)
-    fig = px.bar(monthly, x='Month', y='Amount', color='Type', barmode='group',
-                 color_discrete_map={'Income': '#4ade80', 'Expense': '#f87171'})
-    fig.update_layout(paper_bgcolor='#23243a', plot_bgcolor='#23243a', font_color='#fff')
-    st.plotly_chart(fig, use_container_width=True)
-
 def plot_category_trends(df):
     df['Month'] = df['Date'].dt.to_period('M')
     category_monthly = df.groupby(['Month', 'Category'])['Amount'].sum().reset_index()
@@ -182,18 +170,6 @@ def forecast_spending(df):
     )
     st.plotly_chart(fig, use_container_width=True)
 
-def plot_assets():
-    # Example static data
-    assets = pd.DataFrame({
-        'Asset': ['Gold', 'Stock', 'Warehouse', 'Land'],
-        'Value': [15700, 22500, 120000, 135000]
-    })
-    fig = px.pie(assets, values='Value', names='Asset', hole=0.5,
-                 color_discrete_sequence=px.colors.sequential.Plasma)
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(paper_bgcolor='#23243a', plot_bgcolor='#23243a', font_color='#fff', showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
-
 def filter_data_by_date(df, start_date, end_date):
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
@@ -217,23 +193,19 @@ def app():
         value=0,
         step=1000
     )
+    if 'use_dummy' not in st.session_state:
+        st.session_state['use_dummy'] = False
+
     uploaded_file = st.sidebar.file_uploader("Upload your expense data (CSV)", type=["csv"])
-    use_dummy = st.sidebar.button("Use Default/Dummy Data")
+    if st.sidebar.button("Use Default Data"):
+        st.session_state['use_dummy'] = True
+
     df = None
     if uploaded_file is not None:
         df = load_data(uploaded_file)
-    elif use_dummy:
-        # Create a sample DataFrame with Rent ~50% of total, and add Entertainment and Misc
-        df = pd.DataFrame({
-            'Date': pd.date_range(start='2024-01-01', periods=20, freq='7D'),
-            'Category': [
-                'Rent', 'Groceries', 'Utilities', 'Dining', 'Transport',
-                'Rent', 'Groceries', 'Dining', 'Entertainment', 'Transport',
-                'Rent', 'Groceries', 'Dining', 'Utilities', 'Misc',
-                'Rent', 'Groceries', 'Dining', 'Entertainment', 'Misc',
-            ],
-            'Amount': [800, 120, 60, 45, 100, 800, 110, 50, 80, 90, 800, 130, 60, 70, 40, 800, 125, 55, 90, 100]
-        })
+        st.session_state['use_dummy'] = False
+    elif st.session_state['use_dummy']:
+        df = pd.read_csv('sample_expenses.csv', parse_dates=['Date'])
     # Show instructions if no data is loaded
     if df is None:
         st.markdown("""
@@ -275,7 +247,9 @@ def app():
             min_value=min_date,
             max_value=max_date
         )
-        all_categories = ['All'] + list(df['Category'].unique())
+        unique_categories = list(df['Category'].unique())
+        st.sidebar.markdown(f"**Available Categories:** {', '.join(unique_categories)}")
+        all_categories = ['All'] + unique_categories
         selected_category = st.sidebar.selectbox('Select Category', all_categories)
         if len(date_range) == 2:
             filtered_df = filter_data_by_date(df, date_range[0], date_range[1])
