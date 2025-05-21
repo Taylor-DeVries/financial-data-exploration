@@ -77,7 +77,7 @@ Date,Category,Amount
 
 ## Customization
 
-- **Dummy Data:** Easily tweak the sample data in `app.py` for demos or onboarding.
+- **Default Data:** Easily tweak the sample data in `app.py` for demos.
 - **Add More Analytics:** The code is modular—add new charts or KPIs as needed.
 - **Theming:** Adjust the CSS in `app.py` for your own color scheme or branding.
 
